@@ -29,3 +29,8 @@ mean average precision (mAP@0.50) = 0.898009, or 89.80 %
 Impementaion Details:
 FPS 24-30 While displaying output
 FPS 45-50 While processing only
+
+Yolov4-deepsort folder from
+https://github.com/theAIGuysCode/yolov4-deepsort
+
+changes in obect_tracker.py 
