@@ -3,3 +3,4 @@ yolov4-deepsort/data/classes/coco.names
 yolov4-deepsort/data/classes/voc.names
 yolov4-deepsort/data/classes/yymnist.names
 **.ipynb_checkpoints
+**__pycache__
