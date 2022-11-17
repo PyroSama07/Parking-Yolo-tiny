@@ -28,9 +28,10 @@ flags.DEFINE_string('framework', 'tf', '(tf, tflite, trt')
 flags.DEFINE_string('weights', './checkpoints/yolov4-416',
                     'path to weights file')
 flags.DEFINE_integer('size', 416, 'resize images to')
-flags.DEFINE_boolean('tiny', False, 'yolo or yolo-tiny')
+flags.DEFINE_boolean('tiny', True, 'yolo or yolo-tiny')
 flags.DEFINE_string('model', 'yolov4', 'yolov3 or yolov4')
-flags.DEFINE_string('video', './data/video/test.mp4', 'path to input video or set to 0 for webcam')
+path = './data/video/2020-03-19-08-00-00_scene_0055_BB_write.avi'
+flags.DEFINE_string('video', path, 'path to input video or set to 0 for webcam')
 flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')
 flags.DEFINE_float('iou', 0.45, 'iou threshold')
@@ -95,6 +96,9 @@ def main(_argv):
     object_id_list = []
     dtime = dict()
     dwell_time = dict()
+    dwell_unauth = dict()
+    limit_fine=50
+    list_park=['EZ1I3D', 'K1JURX', 'XLETNF', 'OUDMST', 'PYFI0W', 'I8EXSQ', '9TCHGG', 'M2J8WC', 'NJGIUY', 'F2WVQA', 'YS161A', 'NPSR1K', 'POJWNS', 'VZTYCC', 'I1ZG44', 'RJRKPK', 'VV82DG', 'J5BR0V', 'OHX4H2', 'KUP2YG']
     # while video is running
     while True:
         counter_empty=0
@@ -165,7 +169,7 @@ def main(_argv):
         # by default allow all classes in .names file
         allowed_classes = list(class_names.values())
         
-        # custom allowed classes (uncomment line below to customize tracker for only people)
+        # custom allowed classes (uncomment line below to customize tracker)
         # allowed_classes = ['unauthorized','empty']
 
         # loop through objects and use class index to get class name, allow only classes in allowed_classes list
@@ -242,17 +246,25 @@ def main(_argv):
             color = [i * 255 for i in color]
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2)
             cv2.rectangle(frame, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
-            cv2.putText(frame, class_name + "-" + str(track.track_id)+'-'+str(int(dwell_time[track.track_id])),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2)
-
+            if (int(dwell_time[track.track_id])>limit_fine):
+                cv2.putText(frame, class_name + "-" + str(list_park[track.track_id])+'-'+str(int(dwell_time[track.track_id])),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2)
+                if track.track_id in dwell_unauth:
+                    continue
+                else:
+                    ###idhar chod macha
+                    print(track.track_id)
+                    dwell_unauth[track.track_id]=True
+            else:
+                cv2.putText(frame, class_name + "-" + str(list_park[track.track_id])+'-'+str(int(dwell_time[track.track_id])),(int(bbox[0]), int(bbox[1]-10)),0, 0.75, (255,255,255),2)
         # if enable info flag then print details about each track
             if FLAGS.info:
                 print("Tracker ID: {}, Class: {},  BBox Coords (xmin, ymin, xmax, ymax): {}".format(str(track.track_id), class_name, (int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3]))))
         # calculate frames per second of running detections
         fps = 1.0 / (time.time() - start_time)
         # print("FPS: %.2f" % fps)
-        cv2.putText(frame, "FPS: {:.0f}".format(fps), (7, 30), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 255, 0), 1)
-        cv2.putText(frame, "Empty: {}".format(counter_empty), (7, 55), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 255, 0), 1)
-        cv2.putText(frame, "Parked: {}".format(counter_parked), (7, 80), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 255, 0), 1)
+        cv2.putText(frame, "FPS: {:.0f}".format(fps), (10, 35), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (51, 255, 255), 2)
+        cv2.putText(frame, "Empty: {}".format(counter_empty), (10, 75), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (51, 255, 255), 2)
+        cv2.putText(frame, "Parked: {}".format(counter_parked), (10, 115), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (51, 255, 255), 2)
         result = np.asarray(frame)
         result = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         # print(counter_empty)

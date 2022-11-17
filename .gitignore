@@ -1,0 +1,5 @@
+yolov4-deepsort/data/video/2020-03-19-08-00-00_scene_0055_BB_write.avi
+yolov4-deepsort/data/classes/coco.names
+yolov4-deepsort/data/classes/voc.names
+yolov4-deepsort/data/classes/yymnist.names
+**.ipynb_checkpoints
